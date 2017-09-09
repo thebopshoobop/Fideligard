@@ -38,11 +38,11 @@ The Quandl API will return at most 10,000 records for any request. If there
 are additional pages it supplies a query param to fetch the next page.
 By default we fetch one year of info for 39 stocks, since this usually returns
 just under 10,000 records. Those values are configurable and, if necessary, we
-fetch additional pages. To fetch data for all available stocks, pass 0. To fetch
-data for a specific set of tickers, pass them in as an array of strings. To
-fetch a custom set of columns, pass them in as an array of strings.
+fetch additional pages. To fetch data for all available stocks, set tickers to
+0. To fetch data for a specific set of tickers, pass them in as an array of
+strings. To fetch a custom set of columns, pass them in as an array of strings.
 */
-const fetchRecords = async (start, end, tickers = 39, columns) => {
+const fetchRecords = async (start, end, columns, tickers = 39) => {
   start = moment(start);
   end = end ? moment(end) : moment(start).add(1, "year");
 

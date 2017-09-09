@@ -1,54 +1,67 @@
-const fs = require("fs");
-require("dotenv").config();
-const QUANDL_API_KEY = process.env.QUANDL_API_KEY;
-const BASE_URL = "https://www.quandl.com/api/v3/datasets/EOD/";
-require("isomorphic-fetch");
+const moment = require("moment");
+const { fetchRecords } = require("./quandl");
 
-const ensureFetch = async url => {
-  const response = await fetch(url);
-  if (!response.ok) {
-    const error = new Error(response.statusText);
-    error.response = response;
-    throw error;
-  }
-  return await response.json();
+const buildByCompany = records => {
+  return records.reduce((records, [ticker, date, price]) => {
+    records[ticker] = records[ticker] ? records[ticker] : {};
+    records[ticker][+moment(date)] = price;
+    return records;
+  }, {});
 };
 
-const fetchData = async () => {
-  try {
-    const stocks = [
-      "AAPL",
-      "MSFT",
-      "IBM",
-      "VZ",
-      "KO",
-      "BA",
-      "MMM",
-      "CAT",
-      "V",
-      "UNH",
-      "PG",
-      "GS",
-      "MRK",
-      "UTX",
-      "TRV"
-    ];
-
-    const data = [];
-    for (let stock of stocks) {
-      console.log("Fetching Stock: ", stock);
-      const params =
-        "&column_index=4&start_date=2016-01-01&end_date=2016-12-31";
-      const url = `${BASE_URL}${stock}.json?${params}&api_key=${QUANDL_API_KEY}`;
-      data.push(await ensureFetch(url));
-      console.log("Finished with: ", stock);
-    }
-
-    fs.writeFileSync("./stockData.json", JSON.stringify(data));
-    console.log(`Fetched ${data.length} stocks successfully!`);
-  } catch (error) {
-    console.error(error);
-  }
+const buildDateList = (start, end) => {
+  const day = moment(start);
+  const dateList = [];
+  do {
+    dateList.push(+day);
+    day.add(1, "day");
+  } while (day < end);
+  return dateList;
 };
 
-fetchData().then(() => console.log("Finished"));
+const buildByDate = dates => {
+  return dates.reduce((obj, date) => {
+    obj[date] = {};
+    return obj;
+  }, {});
+};
+
+const getFirstPrice = (prices, start, end) => {
+  const day = moment(start);
+  while (!prices[+day] && day < end) {
+    day.add(1, "day");
+  }
+  return prices[+day];
+};
+
+const populate = (start, end) => (data, [company, prices]) => {
+  let mostRecentPrice = getFirstPrice(prices, start, end);
+
+  for (let day of data.dates) {
+    const price = prices[day];
+    mostRecentPrice = price ? price : mostRecentPrice;
+    data.byCompany[company][day] = mostRecentPrice;
+    data.byDate[day][company] = mostRecentPrice;
+  }
+  return data;
+};
+
+const fetchData = async (start, end, columns, tickers) => {
+  if (!start) throw new Error("A start date is required");
+
+  const records = await fetchRecords(start, end, columns, tickers);
+
+  start = moment(start);
+  end = end ? moment(end) : moment(start).add(1, "year");
+
+  const byCompany = buildByCompany(records);
+  const symbols = Object.keys(byCompany);
+  const dates = buildDateList(start, end);
+  const byDate = buildByDate(dates);
+
+  const schema = { symbols, dates, byDate, byCompany };
+
+  return Object.entries(byCompany).reduce(populate(start, end), schema);
+};
+
+module.exports = fetchData;
