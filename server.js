@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
 
-// Endpoint!
+// Hydration Endpoint
 app.get("/api/stocks", (req, res, next) => {
   try {
     res.json(require("./stockData.json"));
@@ -23,8 +23,24 @@ app.get("/api/stocks", (req, res, next) => {
   }
 });
 
-// Defines next action for errors
-app.use((err, req, res, next) => {
+// Fetch Endpoint
+const fetchData = require("./fetchData");
+app.get("/api/stocks/fetch", async (req, res, next) => {
+  try {
+    let { start, end, columns, tickers } = req.query;
+    if (!start) throw new Error("A start date is required");
+
+    columns = columns ? columns.split(",") : columns;
+    tickers = isNaN(tickers) && tickers ? tickers.split(",") : tickers;
+
+    res.json(await fetchData(start, end, columns, tickers));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Handle errors
+app.use((err, req, res) => {
   console.error("Error: ", err.stack);
   res.status(err.response ? err.response.status : 500);
   res.json({ error: err.message });
