@@ -14,14 +14,10 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 }
 
-// Get the data (from somewhere or other...)
-const loadData = require("./loadData");
-
 // Endpoint!
-app.get("/api/stocks", async (req, res, next) => {
+app.get("/api/stocks", (req, res, next) => {
   try {
-    const companies = await loadData();
-    res.json(companies);
+    res.json(require("./stockData.json"));
   } catch (error) {
     next(error);
   }

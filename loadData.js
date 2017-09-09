@@ -33,14 +33,15 @@ const buildPricesData = company => {
   return prices;
 };
 
-const gatherData = async () => {
-  const data = JSON.parse(fs.readFileSync("./stockData.json", "utf8"));
-  return data.map(company => {
+const gatherData = () => {
+  let data = JSON.parse(fs.readFileSync("./stocks.json", "utf8"));
+  data = data.map(company => {
     return {
       code: company.dataset.dataset_code,
       prices: buildPricesData(company)
     };
   });
+  fs.writeFileSync("./stockData.json", JSON.stringify(data));
 };
 
-module.exports = gatherData();
+gatherData();
