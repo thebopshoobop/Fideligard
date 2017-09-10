@@ -1,7 +1,14 @@
 import moment from "moment";
 import React from "react";
 import Slider from "react-rangeslider";
-import { Segment, Header, Accordion, Icon, Button } from "semantic-ui-react";
+import {
+  Segment,
+  Header,
+  Accordion,
+  Icon,
+  Button,
+  Loader
+} from "semantic-ui-react";
 
 const form = date => moment(date).format("L");
 const latest = moment()
@@ -38,12 +45,13 @@ class DateSlider extends React.Component {
         />
 
         <Accordion>
+          <Loader active={this.props.isFetching} size="large" />
           <Accordion.Title>
             <Icon name="dropdown" />
             {`Range: ${form(this.props.start)} - ${form(this.props.end)}`}
           </Accordion.Title>
           <Accordion.Content>
-            <Header as="h4">Fetch some new stocks:</Header>
+            <Header as="h4">Fetch a different set of stocks:</Header>
             Start: {form(this.state.start)}
             <Slider
               min={+earliest}
