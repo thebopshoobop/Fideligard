@@ -26,8 +26,13 @@ class DateSlider extends React.Component {
     };
   }
 
-  updateStart = start => this.setState({ start });
-  updateEnd = end => this.setState({ end });
+  updateStart = start => {
+    this.setState(start > this.state.end ? { start, end: start } : { start });
+  };
+  updateEnd = end => {
+    this.setState(end < this.state.start ? { end, start: end } : { end });
+  };
+
   updateStocks = stocks => this.setState({ stocks });
 
   render() {
@@ -51,11 +56,11 @@ class DateSlider extends React.Component {
             {`Range: ${form(this.props.start)} - ${form(this.props.end)}`}
           </Accordion.Title>
           <Accordion.Content>
-            <Header as="h4">Fetch a different set of stocks:</Header>
+            <Header as="h4">Fetch some new stocks:</Header>
             Start: {form(this.state.start)}
             <Slider
               min={+earliest}
-              max={this.state.end}
+              max={+latest}
               step={86400000}
               value={this.state.start}
               tooltip={false}
@@ -63,7 +68,7 @@ class DateSlider extends React.Component {
             />
             End: {form(this.state.end)}
             <Slider
-              min={this.state.start}
+              min={+earliest}
               max={+latest}
               step={86400000}
               value={this.state.end}
