@@ -1,5 +1,5 @@
-import moment from "moment";
 import React from "react";
+import moment from "moment";
 import Slider from "react-rangeslider";
 import {
   Segment,
@@ -10,88 +10,74 @@ import {
   Loader
 } from "semantic-ui-react";
 
-const form = date => moment(date).format("L");
-const latest = moment()
+const DAY = 86400000;
+const MAX_TICKERS = 3500;
+const LATEST = moment()
   .startOf("day")
   .subtract(1, "week");
-const earliest = latest.clone().subtract(30, "years");
+const EARLIEST = LATEST.clone().subtract(10, "years");
 
-class DateSlider extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      start: this.props.start,
-      end: this.props.end,
-      stocks: 39
-    };
-  }
+const form = date => moment(date).format("L");
 
-  updateStart = start => {
-    this.setState(start > this.state.end ? { start, end: start } : { start });
-  };
-  updateEnd = end => {
-    this.setState(end < this.state.start ? { end, start: end } : { end });
-  };
+const DateSlider = ({ dates, fetch, isFetching, actions }) => (
+  <Segment>
+    <Header as="h3">{`Trading Day: ${form(fetch.current)}`}</Header>
 
-  updateStocks = stocks => this.setState({ stocks });
+    <Slider
+      min={dates.start}
+      max={dates.end}
+      step={DAY}
+      value={fetch.current}
+      tooltip={false}
+      onChange={actions.onChangeCurrent}
+      onChangeComplete={actions.onChangeCurrentComplete}
+    />
 
-  render() {
-    return (
-      <Segment>
-        <Header as="h3">{`Trading Day: ${form(this.props.current)}`}</Header>
-
+    <Accordion>
+      <Loader
+        active={isFetching}
+        size="large"
+        content="This may take a while..."
+      />
+      <Accordion.Title>
+        <Icon name="dropdown" />
+        {`Range: ${form(dates.start)} - ${form(dates.end)}`}
+      </Accordion.Title>
+      <Accordion.Content>
+        <Header as="h4">Fetch some new stocks:</Header>
+        Start: {form(fetch.start)}
         <Slider
-          min={this.props.start}
-          max={this.props.end}
-          step={86400000}
-          value={this.props.current}
+          min={+EARLIEST}
+          max={+LATEST}
+          step={DAY}
+          value={fetch.start}
           tooltip={false}
-          onChange={value => this.props.updateCurrent(value)}
+          onChange={actions.onChangeStart}
         />
-
-        <Accordion>
-          <Loader active={this.props.isFetching} size="large" />
-          <Accordion.Title>
-            <Icon name="dropdown" />
-            {`Range: ${form(this.props.start)} - ${form(this.props.end)}`}
-          </Accordion.Title>
-          <Accordion.Content>
-            <Header as="h4">Fetch some new stocks:</Header>
-            Start: {form(this.state.start)}
-            <Slider
-              min={+earliest}
-              max={+latest}
-              step={86400000}
-              value={this.state.start}
-              tooltip={false}
-              onChange={value => this.updateStart(value)}
-            />
-            End: {form(this.state.end)}
-            <Slider
-              min={+earliest}
-              max={+latest}
-              step={86400000}
-              value={this.state.end}
-              tooltip={false}
-              onChange={value => this.updateEnd(value)}
-            />
-            Stocks: {this.state.stocks}
-            <Slider
-              min={1}
-              max={3000}
-              step={1}
-              value={this.state.stocks}
-              tooltip={false}
-              onChange={value => this.updateStocks(value)}
-            />
-            <Button primary onClick={() => this.props.updateRange(this.state)}>
-              Fetch!
-            </Button>
-          </Accordion.Content>
-        </Accordion>
-      </Segment>
-    );
-  }
-}
+        End: {form(fetch.end)}
+        <Slider
+          min={+EARLIEST}
+          max={+LATEST}
+          step={DAY}
+          value={fetch.end}
+          tooltip={false}
+          onChange={actions.onChangeEnd}
+        />
+        Stocks: {fetch.stocks}
+        <Slider
+          min={1}
+          max={MAX_TICKERS}
+          step={1}
+          value={fetch.stocks}
+          tooltip={false}
+          onChange={actions.onChangeStocks}
+        />
+        <Button primary onClick={actions.onChangeRange}>
+          Fetch!
+        </Button>
+      </Accordion.Content>
+    </Accordion>
+  </Segment>
+);
 
 export default DateSlider;
