@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "semantic-ui-css/semantic.min.css";
-import "react-datetime/css/react-datetime.css";
 import "react-rangeslider/lib/index.css";
 import "./index.css";
 import App from "./components/App";
