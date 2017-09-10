@@ -11,9 +11,6 @@ export const setCurrent = date => {
 export const setRange = (start, end) => {
   return {
     type: SET_RANGE,
-    data: {
-      start: start,
-      end: end
-    }
+    data: { start, end }
   };
 };
