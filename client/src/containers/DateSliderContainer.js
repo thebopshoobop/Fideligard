@@ -1,16 +1,15 @@
-import React from "react";
 import DateSlider from "../components/DateSlider";
+import { connect } from "react-redux";
+import { dateActions } from "../actions";
 
-class DateSliderContainer extends React.Component {
-  constructor() {
-    super();
-  }
+const mapStateToProps = state => ({ ...state.dates });
 
-  componentDidMount() {}
+const mapDispatchToProps = dispatch => ({
+  updateCurrent: e => dispatch(dateActions.setCurrent(e.target.value))
+});
 
-  render() {
-    return <DateSlider />;
-  }
-}
+const DateSliderContainer = connect(mapStateToProps, mapDispatchToProps)(
+  DateSlider
+);
 
 export default DateSliderContainer;
