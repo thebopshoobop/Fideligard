@@ -14,12 +14,14 @@ class DateSlider extends React.Component {
     super(props);
     this.state = {
       start: this.props.start,
-      end: this.props.end
+      end: this.props.end,
+      stocks: 39
     };
   }
 
   updateStart = start => this.setState({ start });
   updateEnd = end => this.setState({ end });
+  updateStocks = stocks => this.setState({ stocks });
 
   render() {
     return (
@@ -41,7 +43,7 @@ class DateSlider extends React.Component {
             {`Range: ${form(this.props.start)} - ${form(this.props.end)}`}
           </Accordion.Title>
           <Accordion.Content>
-            <Header as="h4">Select a New Range:</Header>
+            <Header as="h4">Fetch some new stocks:</Header>
             Start: {form(this.state.start)}
             <Slider
               min={+earliest}
@@ -59,6 +61,15 @@ class DateSlider extends React.Component {
               value={this.state.end}
               tooltip={false}
               onChange={value => this.updateEnd(value)}
+            />
+            Stocks: {this.state.stocks}
+            <Slider
+              min={1}
+              max={3000}
+              step={1}
+              value={this.state.stocks}
+              tooltip={false}
+              onChange={value => this.updateStocks(value)}
             />
             <Button primary onClick={() => this.props.updateRange(this.state)}>
               Fetch!
