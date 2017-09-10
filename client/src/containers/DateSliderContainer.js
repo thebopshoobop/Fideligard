@@ -5,7 +5,7 @@ import { dateActions } from "../actions";
 const mapStateToProps = state => ({ ...state.dates });
 
 const mapDispatchToProps = dispatch => ({
-  updateCurrent: e => dispatch(dateActions.setCurrent(e.target.value))
+  updateCurrent: date => dispatch(dateActions.setCurrent(+date))
 });
 
 const DateSliderContainer = connect(mapStateToProps, mapDispatchToProps)(

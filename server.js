@@ -28,7 +28,6 @@ const fetchData = require("./fetchData");
 app.get("/api/stocks/fetch", async (req, res, next) => {
   try {
     let { start, end, columns, tickers } = req.query;
-    // if (!start) throw new Error("A start date is required");
 
     columns = columns ? columns.split(",") : columns;
     tickers = isNaN(tickers) && tickers ? tickers.split(",") : tickers;

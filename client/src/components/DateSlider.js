@@ -1,15 +1,33 @@
 import moment from "moment";
 import React from "react";
-import DatePicker from "react-datepicker";
+import Slider from "react-rangeslider";
+import { Segment, Header } from "semantic-ui-react";
 
-const DateSlider = ({ current, start, end }) => {
+const form = date => moment(date).format("L");
+
+const DateSlider = ({ current, start, end, updateCurrent }) => {
   return (
-    <DatePicker
-      selected={moment(current)}
-      minDate={moment(start)}
-      maxDate={moment(end)}
-    />
+    <Segment>
+      <Header as="h3" content={`Trading Day: ${form(current)}`} />
+      <Slider
+        min={start}
+        max={end}
+        step={86400000}
+        value={current}
+        tooltip={false}
+        onChange={value => updateCurrent(value)}
+      />
+    </Segment>
   );
 };
 
 export default DateSlider;
+
+// import DateTime from "react-datetime";
+// <DateTime
+//   value={current}
+//   timeFormat={false}
+//   isValidDate={current => current >= start && current < end}
+//   closeOnSelect={true}
+//   onChange={updateCurrent}
+// />
