@@ -2,6 +2,10 @@ require("isomorphic-fetch");
 require("dotenv").config();
 const moment = require("moment");
 
+///////////////////////////
+// Fetching private methods
+////////////////////////////
+
 const buildUrl = queries => {
   const base = "https://www.quandl.com/api/v3/datatables/WIKI/PRICES.json";
   const key = `api_key=${process.env.QUANDL_API_KEY}`;
@@ -11,10 +15,18 @@ const buildUrl = queries => {
 
 const formatDate = date => date.format("YYYYMMDD");
 
+const midDate = (start, end) => moment((start + end) / 2).startOf("day");
+
+//////////////////////
+// Fetching methods //
+//////////////////////
+
 // Not all days have stock data, so we retry the request incrementing the day
 // if necessary
 const fetchTickers = async (date, days = 10) => {
-  date = moment(date);
+  if (!date) throw new Error("A date is required");
+
+  date = moment(+date);
   const columns = "qopts.columns=ticker";
 
   let tickers;
@@ -42,20 +54,23 @@ fetch additional pages. To fetch data for all available stocks, set tickers to
 0. To fetch data for a specific set of tickers, pass them in as an array of
 strings. To fetch a custom set of columns, pass them in as an array of strings.
 */
-const fetchRecords = async (start, end, columns, tickers = 39) => {
-  start = moment(start);
-  end = end ? moment(end) : moment(start).add(1, "year");
+const fetchRecords = async ({ start, end, columns, tickers }) => {
+  if (!start) throw new Error("A start date is required");
 
+  start = moment(+start);
+  end = end ? moment(+end) : start.clone().add(1, "year");
+  const date = `date.gte=${formatDate(start)}&date.lt=${formatDate(end)}`;
+
+  tickers = tickers === undefined ? 39 : tickers;
   if (tickers.join) {
     tickers = `ticker=${tickers.join(",")}`;
   } else if (tickers > 0) {
-    let tickerArray = await fetchTickers(start);
+    let tickerArray = await fetchTickers(midDate(start, end));
     const mod = Math.ceil(tickerArray.length / tickers);
     tickerArray = tickerArray.filter((t, i) => i % mod === 0);
     tickers = `ticker=${tickerArray.join(",")}`;
   }
 
-  const date = `date.gte=${formatDate(start)}&date.lt=${formatDate(end)}`;
   columns = columns ? columns : ["ticker", "date", "close"];
   columns = `qopts.columns=${columns.join(",")}`;
 
@@ -78,4 +93,75 @@ const fetchRecords = async (start, end, columns, tickers = 39) => {
   return records;
 };
 
-module.exports = { fetchTickers, fetchRecords };
+/////////////////////////////
+// Parsing private methods //
+/////////////////////////////
+
+const buildByCompany = records => {
+  return records.reduce((records, [ticker, date, price]) => {
+    records[ticker] = records[ticker] ? records[ticker] : {};
+    records[ticker][+moment(date)] = price;
+    return records;
+  }, {});
+};
+
+const buildDateList = (start, end) => {
+  const day = moment(start);
+  const dateList = [];
+  do {
+    dateList.push(+day);
+    day.add(1, "day");
+  } while (day < end);
+  return dateList;
+};
+
+const buildByDate = dates => {
+  return dates.reduce((obj, date) => {
+    obj[date] = {};
+    return obj;
+  }, {});
+};
+
+const getFirstPrice = (prices, start, end) => {
+  const day = moment(start);
+  while (!prices[+day] && day < end) {
+    day.add(1, "day");
+  }
+  return prices[+day];
+};
+
+const populate = (start, end) => (data, [company, prices]) => {
+  let mostRecentPrice = getFirstPrice(prices, start, end);
+
+  for (let day of data.dates) {
+    const price = prices[day];
+    mostRecentPrice = price ? price : mostRecentPrice;
+    data.byCompany[company][day] = mostRecentPrice;
+    data.byDate[day][company] = mostRecentPrice;
+  }
+  return data;
+};
+
+////////////////////
+// Parsing method //
+////////////////////
+
+const fetchParsedRecords = async ({ start, end, columns, tickers }) => {
+  if (!start) throw new Error("A start date is required");
+
+  const records = await fetchRecords({ start, end, columns, tickers });
+
+  start = moment(+start);
+  end = end ? moment(+end) : start.clone().add(1, "year");
+
+  const byCompany = buildByCompany(records);
+  const symbols = Object.keys(byCompany);
+  const dates = buildDateList(start, end);
+  const byDate = buildByDate(dates);
+
+  const schema = { symbols, dates, byDate, byCompany };
+
+  return Object.entries(byCompany).reduce(populate(start, end), schema);
+};
+
+module.exports = { fetchTickers, fetchRecords, fetchParsedRecords };

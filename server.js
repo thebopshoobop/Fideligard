@@ -24,7 +24,7 @@ app.get("/api/stocks", (req, res, next) => {
 });
 
 // Fetch Endpoint
-const fetchData = require("./fetchData");
+const { fetchParsedRecords } = require("./quandl");
 app.get("/api/stocks/fetch", async (req, res, next) => {
   try {
     let { start, end, columns, tickers } = req.query;
@@ -32,7 +32,7 @@ app.get("/api/stocks/fetch", async (req, res, next) => {
     columns = columns ? columns.split(",") : columns;
     tickers = isNaN(tickers) && tickers ? tickers.split(",") : tickers;
 
-    res.json(await fetchData(start, end, columns, tickers));
+    res.json(await fetchParsedRecords({ start, end, columns, tickers }));
   } catch (error) {
     console.log("catching");
     next(error);
