@@ -28,19 +28,20 @@ const fetchData = require("./fetchData");
 app.get("/api/stocks/fetch", async (req, res, next) => {
   try {
     let { start, end, columns, tickers } = req.query;
-    if (!start) throw new Error("A start date is required");
+    // if (!start) throw new Error("A start date is required");
 
     columns = columns ? columns.split(",") : columns;
     tickers = isNaN(tickers) && tickers ? tickers.split(",") : tickers;
 
     res.json(await fetchData(start, end, columns, tickers));
   } catch (error) {
+    console.log("catching");
     next(error);
   }
 });
 
 // Handle errors
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   console.error("Error: ", err.stack);
   res.status(err.response ? err.response.status : 500);
   res.json({ error: err.message });
