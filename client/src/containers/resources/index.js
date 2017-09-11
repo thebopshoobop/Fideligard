@@ -1,5 +1,5 @@
 import React from "react";
-import { Segment, Header, Dropdown, Grid } from "semantic-ui-react";
+import { Divider, Segment, Header, Dropdown, Grid } from "semantic-ui-react";
 import { withRouter } from "react-router-dom";
 import capitalize from "../../lib/capitalize";
 import PortfolioContainer from "./PortfolioContainer";
@@ -7,9 +7,9 @@ import TransactionsContainer from "./TransactionsContainer";
 import TradeContainer from "./TradeContainer";
 
 export const resources = {
-  portfolio: PortfolioContainer,
-  transactions: TransactionsContainer,
-  trade: TradeContainer
+  portfolio: <PortfolioContainer />,
+  transactions: <TransactionsContainer />,
+  trade: <TradeContainer />
 };
 
 export const resourceNames = Object.keys(resources);
@@ -33,6 +33,7 @@ export const ResourceContainer = withRouter(({ type, history }) => (
         />
       </Grid.Column>
     </Grid>
-    {resources[type]()}
+    <Divider />
+    {resources[type]}
   </Segment>
 ));

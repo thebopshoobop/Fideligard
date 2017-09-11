@@ -19,10 +19,7 @@ class StocksContainer extends Component {
     this.props.updateFilter(event.target.value);
   };
 
-  onTrade = ticker => () => {
-    console.log(ticker);
-    this.props.history.push(`/trade?ticker=${ticker}`);
-  };
+  onTrade = ticker => () => this.props.history.push(`/trade?ticker=${ticker}`);
 
   render() {
     return (
