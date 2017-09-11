@@ -9,7 +9,6 @@ class StocksContainer extends Component {
   }
 
   onClick = column => () => {
-    console.log(this.props);
     const direction =
       this.props.sort.column === column ? !this.props.sort.direction : true;
     this.props.updateSort(column, direction);
@@ -20,13 +19,30 @@ class StocksContainer extends Component {
   }
 }
 
-const filterStocks = stocks => {
-  return Object.entries(stocks).slice(0, 15);
+const filterStocks = (stocks, date) => {
+  let selection = stocks.records[date];
+  if (selection) {
+    const { column, direction } = stocks.sort;
+
+    selection = Object.values(selection).sort((a, b) => {
+      [a, b] = [a[column], b[column]];
+      if (!direction) [a, b] = [b, a];
+      if (!isNaN(parseFloat(a))) [a, b] = [parseFloat(a), parseFloat(b)];
+
+      if (a > b) return 1;
+      if (a < b) return -1;
+      else return 0;
+    });
+
+    return selection.slice(0, 15);
+  } else {
+    return [];
+  }
 };
 
 const mapStateToProps = state => {
   return {
-    stocks: filterStocks(state.stocks.records),
+    stocks: filterStocks(state.stocks, state.dates.current),
     date: state.dates.current,
     sort: state.stocks.sort
   };

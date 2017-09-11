@@ -1,5 +1,5 @@
 import { setFetching, setSuccess, setError } from "./statusActions.js";
-import { setRange } from "./dateActions";
+import { setRange, setCurrent } from "./dateActions";
 import { FetchError } from "../lib/errors";
 
 export const SET_STOCKS = "SET_STOCKS";
@@ -45,6 +45,7 @@ export const fetchStocks = (start, end, tickers) => async dispatch => {
     const json = await ensureFetch(url);
     dispatch(setStocks(json));
     dispatch(setRange(start, end));
+    dispatch(setCurrent(start));
     dispatch(setSuccess());
   } catch (error) {
     dispatch(setError(error));
