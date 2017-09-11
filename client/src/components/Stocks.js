@@ -4,9 +4,12 @@ import SortableTable from "./elements/SortableTable";
 
 const headers = ["Ticker", "Price", "1d", "7d", "30d"];
 
-const Stocks = ({ stocks, date, sort, filter, onSort, onFilter }) => {
+const Stocks = ({ stocks, date, sort, filter, onSort, onFilter, onTrade }) => {
   const rows = stocks.map(values => {
-    return headers.map(name => values[name]);
+    return {
+      cells: headers.map(name => values[name]),
+      onClick: onTrade(values.Ticker)
+    };
   });
   return (
     <Segment>

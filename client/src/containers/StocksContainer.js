@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import Stocks from "../components/Stocks";
 import { stockActions } from "../actions";
 
@@ -18,9 +19,19 @@ class StocksContainer extends Component {
     this.props.updateFilter(event.target.value);
   };
 
+  onTrade = ticker => () => {
+    console.log(ticker);
+    this.props.history.push(`/trade?ticker=${ticker}`);
+  };
+
   render() {
     return (
-      <Stocks {...this.props} onSort={this.onSort} onFilter={this.onFilter} />
+      <Stocks
+        {...this.props}
+        onSort={this.onSort}
+        onFilter={this.onFilter}
+        onTrade={this.onTrade}
+      />
     );
   }
 }
@@ -69,5 +80,6 @@ const mapDispatchToProps = dispatch => ({
   updateFilter: filter => dispatch(stockActions.setFilter(filter))
 });
 
-// export default () => <StocksContainer />;
-export default connect(mapStateToProps, mapDispatchToProps)(StocksContainer);
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(StocksContainer)
+);
