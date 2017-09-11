@@ -7,15 +7,21 @@ class StocksContainer extends Component {
   componentDidMount() {
     this.props.hydrateStocks();
   }
-
   render() {
-    return <Stocks />;
+    return <Stocks {...this.props} />;
   }
 }
 
-const mapStateToProps = state => ({
-  stocks: state.stocks
-});
+const filterStocks = stocks => {
+  return Object.entries(stocks).slice(0, 15);
+};
+
+const mapStateToProps = state => {
+  return {
+    stocks: filterStocks(state.stocks.byCompany),
+    date: state.dates.current
+  };
+};
 
 const mapDispatchToProps = dispatch => ({
   hydrateStocks: () => dispatch(stockActions.hydrateStocks())

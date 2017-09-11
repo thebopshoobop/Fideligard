@@ -9,14 +9,19 @@ class DateSliderContainer extends Component {
     this.state = {
       start: this.props.dates.start,
       end: this.props.dates.end,
-      current: this.props.dates.current,
+      current: 0,
       stocks: 39
     };
   }
 
-  onChangeCurrent = current => this.setState({ current });
-  onChangeCurrentComplete = () =>
-    this.props.actions.updateCurrent(this.state.current);
+  onChangeCurrent = current => {
+    this.setState({ current });
+  };
+  onChangeCurrentComplete = () => {
+    this.props.actions.updateCurrent(
+      this.props.dates.array[this.state.current]
+    );
+  };
 
   onChangeStart = start => {
     this.setState(start > this.state.end ? { start, end: start } : { start });
@@ -44,7 +49,7 @@ class DateSliderContainer extends Component {
 }
 
 const mapStateToProps = state => ({
-  dates: { ...state.dates },
+  dates: { ...state.dates, array: state.stocks.dates },
   isFetching: state.status.isFetching
 });
 
@@ -52,8 +57,6 @@ const mapDispatchToProps = dispatch => ({
   actions: {
     updateCurrent: date => dispatch(dateActions.setCurrent(+date)),
     updateRange: ({ start, end, stocks, current }) => {
-      if (current < start) dispatch(dateActions.setCurrent(+start));
-      if (current > end) dispatch(dateActions.setCurrent(+end));
       dispatch(stockActions.fetchStocks(+start, +end, stocks));
     }
   }

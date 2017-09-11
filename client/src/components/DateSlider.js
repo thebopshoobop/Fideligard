@@ -21,12 +21,12 @@ const form = date => moment(date).format("L");
 
 const DateSlider = ({ dates, fetch, isFetching, actions }) => (
   <Segment>
-    <Header as="h3">{`Trading Day: ${form(fetch.current)}`}</Header>
+    <Header as="h3">
+      {`Trading Day: ${form(dates.array[fetch.current])}`}
+    </Header>
 
     <Slider
-      min={dates.start}
-      max={dates.end}
-      step={DAY}
+      max={dates.array.length - 1}
       value={fetch.current}
       tooltip={false}
       onChange={actions.onChangeCurrent}
@@ -44,7 +44,7 @@ const DateSlider = ({ dates, fetch, isFetching, actions }) => (
         {`Range: ${form(dates.start)} - ${form(dates.end)}`}
       </Accordion.Title>
       <Accordion.Content>
-        <Header as="h4">Fetch some new stocks:</Header>
+        <Header as="h4">Fetch a new set of stocks:</Header>
         Start: {form(fetch.start)}
         <Slider
           min={+EARLIEST}
@@ -67,7 +67,6 @@ const DateSlider = ({ dates, fetch, isFetching, actions }) => (
         <Slider
           min={1}
           max={MAX_TICKERS}
-          step={1}
           value={fetch.stocks}
           tooltip={false}
           onChange={actions.onChangeStocks}
