@@ -5,7 +5,7 @@ const defaultState = {
   dates: [],
   records: {},
   sort: {
-    column: "Symbol",
+    column: "Ticker",
     direction: true
   }
 };

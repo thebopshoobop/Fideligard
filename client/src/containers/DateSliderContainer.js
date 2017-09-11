@@ -56,7 +56,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   actions: {
     updateCurrent: date => dispatch(dateActions.setCurrent(+date)),
-    updateRange: ({ start, end, stocks, current }) => {
+    updateRange: ({ start, end, stocks }) => {
       dispatch(stockActions.fetchStocks(+start, +end, stocks));
     }
   }
