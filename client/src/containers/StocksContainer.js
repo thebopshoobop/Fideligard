@@ -8,19 +8,19 @@ class StocksContainer extends Component {
     this.props.hydrateStocks();
   }
 
-  onClick = column => () => {
+  onSort = column => () => {
     const direction =
       this.props.sort.column === column ? !this.props.sort.direction : true;
     this.props.updateSort(column, direction);
   };
 
-  onChange = event => {
+  onFilter = event => {
     this.props.updateFilter(event.target.value);
   };
 
   render() {
     return (
-      <Stocks {...this.props} onClick={this.onClick} onChange={this.onChange} />
+      <Stocks {...this.props} onSort={this.onSort} onFilter={this.onFilter} />
     );
   }
 }
