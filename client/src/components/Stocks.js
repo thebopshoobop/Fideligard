@@ -11,10 +11,10 @@ const Stocks = ({ stocks, date, sort, filter, onClick, onChange }) => {
   return (
     <Segment>
       <Grid>
-        <Grid.Column width={8}>
+        <Grid.Column width={6}>
           <Header as="h2">Stocks</Header>
         </Grid.Column>
-        <Grid.Column width={8} textAlign="right">
+        <Grid.Column width={10} textAlign="right">
           <Input placeholder="Filter..." value={filter} onChange={onChange} />
         </Grid.Column>
       </Grid>

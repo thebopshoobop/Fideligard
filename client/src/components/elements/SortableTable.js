@@ -19,7 +19,7 @@ const Row = ({ cells }) => (
 );
 
 const SortableTable = ({ headers, rows, onClick, sort }) => (
-  <Table size="small" compact={true} fixed celled striped>
+  <Table size="small" compact={true} celled striped>
     <Table.Header>
       <Table.Row>
         {headers.map(name => (
