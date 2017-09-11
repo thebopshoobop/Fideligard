@@ -1,7 +1,7 @@
 import { dateActions } from "../actions";
 
 const defaultState = {
-  current: 1467604800000,
+  current: 1451624400000,
   start: 1451624400000,
   end: 1483246800000
 };

@@ -1,12 +1,15 @@
 import React from "react";
 import { Header, Segment, Table } from "semantic-ui-react";
 
-const Stock = ([ticker, prices], date) => (
-  <Table.Row key={ticker}>
-    <Table.Cell>{ticker}</Table.Cell>
-    {prices[date].map((p, i) => <Table.Cell key={`${p + i}`} content={p} />)}
-  </Table.Row>
-);
+const Stock = ([ticker, prices], date) => {
+  if (!prices[date]) return null;
+  return (
+    <Table.Row key={ticker}>
+      <Table.Cell>{ticker}</Table.Cell>
+      {prices[date].map((p, i) => <Table.Cell key={`${p + i}`} content={p} />)}
+    </Table.Row>
+  );
+};
 
 const headers = ["Ticker", "Price", "1d", "7d", "30d"];
 

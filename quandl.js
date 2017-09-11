@@ -78,7 +78,6 @@ const fetchRecords = async ({ start, end, columns, tickers }) => {
   let next;
   do {
     const queries = [date, columns, tickers, next].filter(q => !!q);
-
     let data = await fetch(buildUrl(queries));
     data = await data.json();
     records = records.concat(data.datatable.data);
