@@ -18,7 +18,7 @@ const filterStocks = stocks => {
 
 const mapStateToProps = state => {
   return {
-    stocks: filterStocks(state.stocks.byCompany),
+    stocks: filterStocks(state.stocks.records),
     date: state.dates.current
   };
 };

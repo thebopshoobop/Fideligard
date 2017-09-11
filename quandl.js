@@ -57,8 +57,8 @@ strings. To fetch a custom set of columns, pass them in as an array of strings.
 const fetchRecords = async ({ start, end, columns, tickers }) => {
   if (!start) throw new Error("A start date is required");
 
-  start = moment(+start);
-  end = end ? moment(+end) : start.clone().add(1, "year");
+  start = moment(start);
+  end = end ? moment(end) : start.clone().add(1, "year");
   const date = `date.gte=${formatDate(start)}&date.lt=${formatDate(end)}`;
 
   tickers = tickers === undefined ? 39 : tickers;
@@ -97,7 +97,7 @@ const fetchRecords = async ({ start, end, columns, tickers }) => {
 // Parsing private methods //
 /////////////////////////////
 
-const buildByCompany = records => {
+const buildRecordHash = records => {
   return records.reduce((records, [ticker, date, price]) => {
     records[ticker] = records[ticker] ? records[ticker] : {};
     records[ticker][+moment(date)] = price;
@@ -115,13 +115,6 @@ const buildDateList = (start, end) => {
   return dateList;
 };
 
-const buildByDate = dates => {
-  return dates.reduce((obj, date) => {
-    obj[date] = {};
-    return obj;
-  }, {});
-};
-
 const getFirstPrice = (prices, start, end) => {
   const day = moment(start);
   while (!prices[+day] && day < end) {
@@ -136,8 +129,7 @@ const populate = (start, end) => (data, [company, prices]) => {
   for (let day of data.dates) {
     const price = prices[day];
     mostRecentPrice = price ? price : mostRecentPrice;
-    data.byCompany[company][day] = mostRecentPrice;
-    data.byDate[day][company] = mostRecentPrice;
+    data.records[company][day] = mostRecentPrice;
   }
   return data;
 };
@@ -149,19 +141,17 @@ const populate = (start, end) => (data, [company, prices]) => {
 const fetchParsedRecords = async ({ start, end, columns, tickers }) => {
   if (!start) throw new Error("A start date is required");
 
-  const records = await fetchRecords({ start, end, columns, tickers });
+  start = moment(start);
+  end = end ? moment(end) : start.clone().add(1, "year");
 
-  start = moment(+start);
-  end = end ? moment(+end) : start.clone().add(1, "year");
-
-  const byCompany = buildByCompany(records);
-  const symbols = Object.keys(byCompany);
+  let records = await fetchRecords({ start, end, columns, tickers });
+  records = buildRecordHash(records);
+  const symbols = Object.keys(records);
   const dates = buildDateList(start, end);
-  const byDate = buildByDate(dates);
 
-  const schema = { symbols, dates, byDate, byCompany };
+  const schema = { records, symbols, dates };
 
-  return Object.entries(byCompany).reduce(populate(start, end), schema);
+  return Object.entries(records).reduce(populate(start, end), schema);
 };
 
 module.exports = { fetchTickers, fetchRecords, fetchParsedRecords };

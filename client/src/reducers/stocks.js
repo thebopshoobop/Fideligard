@@ -3,8 +3,7 @@ import { stockActions } from "../actions";
 const defaultState = {
   symbols: [],
   dates: [],
-  byDate: {},
-  byCompany: {},
+  records: {},
   sort: {
     column: "Symbol",
     direction: true
