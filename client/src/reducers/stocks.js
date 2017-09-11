@@ -7,7 +7,8 @@ const defaultState = {
   sort: {
     column: "Ticker",
     direction: true
-  }
+  },
+  filter: ""
 };
 
 const dates = (state = defaultState, action) => {
@@ -16,6 +17,8 @@ const dates = (state = defaultState, action) => {
       return { ...state, ...action.data };
     case stockActions.SET_SORT:
       return { ...state, sort: action.data };
+    case stockActions.SET_FILTER:
+      return { ...state, filter: action.data };
     default:
       return state;
   }

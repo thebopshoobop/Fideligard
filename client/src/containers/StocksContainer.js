@@ -14,17 +14,30 @@ class StocksContainer extends Component {
     this.props.updateSort(column, direction);
   };
 
+  onChange = event => {
+    this.props.updateFilter(event.target.value);
+  };
+
   render() {
-    return <Stocks {...this.props} onClick={this.onClick} />;
+    return (
+      <Stocks {...this.props} onClick={this.onClick} onChange={this.onChange} />
+    );
   }
 }
 
 const filterStocks = (stocks, date) => {
   let selection = stocks.records[date];
   if (selection) {
-    const { column, direction } = stocks.sort;
+    selection = Object.values(selection);
 
-    selection = Object.values(selection).sort((a, b) => {
+    if (stocks.filter) {
+      selection = selection.filter(stock =>
+        stock.Ticker.includes(stocks.filter.toUpperCase())
+      );
+    }
+
+    const { column, direction } = stocks.sort;
+    selection = selection.sort((a, b) => {
       [a, b] = [a[column], b[column]];
       if (!direction) [a, b] = [b, a];
       if (!isNaN(parseFloat(a))) [a, b] = [parseFloat(a), parseFloat(b)];
@@ -44,14 +57,16 @@ const mapStateToProps = state => {
   return {
     stocks: filterStocks(state.stocks, state.dates.current),
     date: state.dates.current,
-    sort: state.stocks.sort
+    sort: state.stocks.sort,
+    filter: state.stocks.filter
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   hydrateStocks: () => dispatch(stockActions.hydrateStocks()),
   updateSort: (column, direction) =>
-    dispatch(stockActions.setSort(column, direction))
+    dispatch(stockActions.setSort(column, direction)),
+  updateFilter: filter => dispatch(stockActions.setFilter(filter))
 });
 
 // export default () => <StocksContainer />;

@@ -4,18 +4,26 @@ import { FetchError } from "../lib/errors";
 
 export const SET_STOCKS = "SET_STOCKS";
 export const SET_SORT = "SET_SORT";
-
-const setStocks = stocks => {
-  return {
-    type: SET_STOCKS,
-    data: stocks
-  };
-};
+export const SET_FILTER = "SET_FILTER";
 
 export const setSort = (column, direction) => {
   return {
     type: SET_SORT,
     data: { column, direction }
+  };
+};
+
+export const setFilter = filter => {
+  return {
+    type: SET_FILTER,
+    data: filter
+  };
+};
+
+const setStocks = stocks => {
+  return {
+    type: SET_STOCKS,
+    data: stocks
   };
 };
 

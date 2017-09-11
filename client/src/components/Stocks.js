@@ -1,16 +1,23 @@
 import React from "react";
-import { Header, Segment } from "semantic-ui-react";
+import { Header, Segment, Grid, Input } from "semantic-ui-react";
 import SortableTable from "./elements/SortableTable";
 
 const headers = ["Ticker", "Price", "1d", "7d", "30d"];
 
-const Stocks = ({ stocks, date, sort, onClick }) => {
+const Stocks = ({ stocks, date, sort, filter, onClick, onChange }) => {
   const rows = stocks.map(values => {
     return headers.map(name => values[name]);
   });
   return (
     <Segment>
-      <Header as="h2">Stocks</Header>
+      <Grid>
+        <Grid.Column width={8}>
+          <Header as="h2">Stocks</Header>
+        </Grid.Column>
+        <Grid.Column width={8} textAlign="right">
+          <Input placeholder="Filter..." value={filter} onChange={onChange} />
+        </Grid.Column>
+      </Grid>
       <SortableTable
         rows={rows}
         headers={headers}
