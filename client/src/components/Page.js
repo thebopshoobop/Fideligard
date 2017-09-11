@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Container, Header, Segment } from "semantic-ui-react";
+import { Grid, Header, Segment } from "semantic-ui-react";
 import { resourceNames, ResourceContainer } from "../containers/resources";
 import Findable from "./elements/Findable";
 import DateSliderContainer from "../containers/DateSliderContainer";
@@ -15,19 +15,17 @@ const Page = ({ match }) => {
         </Header>
       </Segment>
       <Findable condition={resourceNames.includes(type)}>
-        <Container>
-          <Grid>
-            <Grid.Row>
-              <Grid.Column width={6}>
-                <StocksContainer />
-              </Grid.Column>
-              <Grid.Column width={10}>
-                <DateSliderContainer />
-                <ResourceContainer type={type} />
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Container>
+        <Grid container={true} stackable>
+          <Grid.Row>
+            <Grid.Column tablet={16} computer={6}>
+              <StocksContainer />
+            </Grid.Column>
+            <Grid.Column tablet={16} computer={10}>
+              <DateSliderContainer />
+              <ResourceContainer type={type} />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
       </Findable>
     </div>
   );

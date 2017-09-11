@@ -126,11 +126,19 @@ const getFirstPrice = (prices, start, end) => {
 const populate = (start, end) => (data, [company, prices]) => {
   let mostRecentPrice = getFirstPrice(prices, start, end);
 
-  for (let day of data.dates) {
+  data.dates.map((day, index) => {
     const price = prices[day];
     mostRecentPrice = price ? price : mostRecentPrice;
-    data.records[company][day] = mostRecentPrice;
-  }
+    const diffs = [1, 7, 30].map(diff => {
+      if (index - diff < 0) {
+        return "?";
+      } else {
+        const prevPrice = data.records[company][data.dates[index - diff]][0];
+        return (prevPrice - mostRecentPrice).toFixed(2);
+      }
+    });
+    data.records[company][day] = [mostRecentPrice].concat(diffs);
+  });
   return data;
 };
 
