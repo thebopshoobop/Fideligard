@@ -114,6 +114,13 @@ const buildDateList = (start, end) => {
   return dateList;
 };
 
+const buildRecords = dates => {
+  return dates.reduce((records, day) => {
+    records[day] = {};
+    return records;
+  }, {});
+};
+
 const getFirstPrice = (prices, start, end) => {
   const day = moment(start);
   while (!prices[+day] && day < end) {
@@ -122,21 +129,28 @@ const getFirstPrice = (prices, start, end) => {
   return prices[+day];
 };
 
+const priceMap = [["1d", 1], ["7d", 7], ["30d", 30]];
+
 const populate = (start, end) => (data, [company, prices]) => {
   let mostRecentPrice = getFirstPrice(prices, start, end);
 
   data.dates.map((day, index) => {
     const price = prices[day];
     mostRecentPrice = price ? price : mostRecentPrice;
-    const diffs = [1, 7, 30].map(diff => {
-      if (index - diff < 0) {
-        return "?";
-      } else {
-        const prevPrice = data.records[company][data.dates[index - diff]][0];
-        return (prevPrice - mostRecentPrice).toFixed(2);
-      }
-    });
-    data.records[company][day] = [mostRecentPrice].concat(diffs);
+
+    data.records[day][company] = priceMap.reduce(
+      (prices, [name, diff]) => {
+        if (index - diff < 0) {
+          prices[name] = "?";
+        } else {
+          const prevPrice =
+            data.records[data.dates[index - diff]][company].Price;
+          prices[name] = (prevPrice - mostRecentPrice).toFixed(2);
+        }
+        return prices;
+      },
+      { Price: mostRecentPrice, Ticker: company }
+    );
   });
   return data;
 };
@@ -151,14 +165,15 @@ const fetchParsedRecords = async ({ start, end, columns, tickers }) => {
   start = moment(start);
   end = end ? moment(end) : start.clone().add(1, "year");
 
-  let records = await fetchRecords({ start, end, columns, tickers });
-  records = buildRecordHash(records);
-  const symbols = Object.keys(records);
+  const recordArray = await fetchRecords({ start, end, columns, tickers });
+  const recordHash = buildRecordHash(recordArray);
+  const symbols = Object.keys(recordHash);
   const dates = buildDateList(start, end);
+  const records = buildRecords(dates);
 
   const schema = { records, symbols, dates };
 
-  return Object.entries(records).reduce(populate(start, end), schema);
+  return Object.entries(recordHash).reduce(populate(start, end), schema);
 };
 
 module.exports = { fetchTickers, fetchRecords, fetchParsedRecords };
