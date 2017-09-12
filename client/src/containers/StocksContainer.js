@@ -55,7 +55,7 @@ const filterStocks = (stocks, date) => {
       else return 0;
     });
 
-    return selection.slice(0, 15);
+    return selection;
   } else {
     return [];
   }

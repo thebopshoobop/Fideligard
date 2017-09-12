@@ -13,7 +13,9 @@ const dates = (state = defaultState, action) => {
         balance: state.balance - cost,
         stocks: {
           ...state.stocks,
-          [ticker]: state.stocks[ticker] + quantity || quantity
+          [ticker]: state.stocks[ticker]
+            ? state.stocks[ticker] + quantity
+            : quantity
         }
       };
     default:
