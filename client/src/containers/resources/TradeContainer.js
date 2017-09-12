@@ -11,39 +11,68 @@ class TradeContainer extends React.Component {
     this.state = {
       symbol: "",
       action: "Buy",
-      quantity: 0
+      quantity: 0,
+      symbols: []
     };
   }
 
+  stocks = () => this.props.portfolio.stocks;
+  buying = () => this.state.action === "Buy";
+
+  getSymbols = action =>
+    action === "Buy" ? this.props.symbols : Object.keys(this.stocks());
+
+  getSymbol = () =>
+    queryString.parse(this.props.location.search).ticker ||
+    this.state.symbol ||
+    this.props.symbols[0];
+
+  setSymbol = symbol => {
+    let symbols = this.getSymbols(this.state.action);
+    let action = this.state.action;
+    [symbols, action] = symbols.length
+      ? [symbols, action]
+      : [this.getSymbols("Buy"), "Buy"];
+
+    this.setState({ symbol, action, symbols });
+  };
+
   componentDidUpdate(prevProps, prevState) {
-    let symbol = queryString.parse(this.props.location.search).ticker;
-    if (!symbol) {
-      symbol = this.props.symbols[0];
-    }
+    const symbol = this.getSymbol();
     if (symbol && symbol !== prevState.symbol) {
-      this.setState({ symbol });
+      return this.setSymbol(symbol);
+    }
+
+    if (!this.props.symbols.length) return;
+
+    if (!this.state.symbols.length) {
+      this.setState({ symbols: this.getSymbols(this.state.action) });
+    } else if (!this.buying() && !this.stocks()[this.state.symbol]) {
+      this.setState({ action: "Buy", symbols: this.getSymbols("Buy") });
     }
   }
 
   componentDidMount() {
-    let symbol = queryString.parse(this.props.location.search).ticker;
-    if (!symbol) {
-      symbol = this.props.symbols[0];
-    }
+    let symbol = this.getSymbol();
     if (symbol) {
-      this.setState({ symbol });
+      this.setSymbol(symbol);
     }
   }
 
-  onChangeAction = (_, data) => this.setState({ action: data.value });
+  onChangeAction = (_, { value }) => {
+    const [action, symbols] = [value, this.getSymbols(value)];
+    if (symbols.length) {
+      this.setState({ action, symbols });
+    }
+  };
 
   onChangeSymbol = (_, data) => {
-    this.props.history.push(`/trade?${data.value}`);
+    this.props.history.push(`/trade?ticker=${data.value}`);
     this.setState({ symbol: data.value });
   };
 
   onChangeQuantity = ({ target }) => {
-    const quantity = target.value > 0 ? target.value : 0;
+    const quantity = target.value > 0 ? +target.value : 0;
     this.setState({ quantity });
   };
 
@@ -52,16 +81,12 @@ class TradeContainer extends React.Component {
     const prices = this.props.prices[this.state.symbol];
     if (!prices) return;
     const cost = prices.Price * this.state.quantity;
-    this.props.makeTrade(this.state.symbol, this.state.quantity, cost);
+    const quantity = this.buying() ? this.state.quantity : -this.state.quantity;
+    this.props.makeTrade(this.state.symbol, quantity, cost);
   };
 
   render() {
-    const symbols =
-      this.state.action === "Buy"
-        ? this.props.symbols
-        : Object.keys(this.props.portfolio.stocks);
-
-    const tradeSymbol = this.state.symbol || symbols[0];
+    const tradeSymbol = this.state.symbol;
     const balance = this.props.portfolio.balance;
     const dayPrices = this.props.prices;
 
@@ -69,10 +94,17 @@ class TradeContainer extends React.Component {
     if (dayPrices && dayPrices[tradeSymbol] && dayPrices[tradeSymbol].Price) {
       price = dayPrices[tradeSymbol].Price;
       total = (price * this.state.quantity).toFixed(2);
-      balanceAfter =
-        this.state.action === "Buy"
-          ? (+balance - +total).toFixed(2)
-          : (+balance + +total).toFixed(2);
+      balanceAfter = this.buying()
+        ? (+balance - +total).toFixed(2)
+        : (+balance + +total).toFixed(2);
+    }
+
+    const enough = this.stocks()[this.state.symbol] >= this.state.quantity;
+    let valid = "";
+    if (balanceAfter < 0) {
+      valid = "Your balance is not sufficient to purchase this many stocks";
+    } else if (!this.buying() && !enough) {
+      valid = "You don't have enough of this stock to sell";
     }
 
     const prices = { balance, balanceAfter, price, total };
@@ -84,31 +116,9 @@ class TradeContainer extends React.Component {
       onPlaceOrder: this.onPlaceOrder
     };
 
-    const valid = { condition: true, message: "" };
-    if (this.state.action === "Buy") {
-      if (balanceAfter < 0) {
-        valid.condition = false;
-        valid.message =
-          "Your balance is not sufficient to purchase this many stocks";
-      }
-    } else {
-      if (
-        this.props.portfolio.stocks[this.state.symbol] < this.state.quantity
-      ) {
-        valid.condition = false;
-        valid.message = "You don't have enough of this stock to sell";
-      }
-    }
+    const props = { prices, actions, valid, trade: this.state };
 
-    return (
-      <Trade
-        symbols={symbols}
-        prices={prices}
-        trade={this.state}
-        actions={actions}
-        valid={valid}
-      />
-    );
+    return <Trade {...props} />;
   }
 }
 

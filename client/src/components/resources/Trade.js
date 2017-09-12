@@ -6,9 +6,9 @@ const buildDrop = ({ options, value, onChange }) => (
   <Dropdown selection options={options} value={value} onChange={onChange} />
 );
 
-const Trade = ({ symbols, prices, trade, actions, valid }) => {
+const Trade = ({ prices, trade, actions, valid }) => {
   const symbolOptions = {
-    options: symbols.map(sym => ({ text: sym, value: sym })),
+    options: trade.symbols.map(sym => ({ text: sym, value: sym })),
     value: trade.symbol,
     onChange: actions.onChangeSymbol
   };
@@ -21,12 +21,6 @@ const Trade = ({ symbols, prices, trade, actions, valid }) => {
 
   return (
     <Form onSubmit={actions.onPlaceOrder}>
-      <Showable condition={!valid.condition}>
-        <Message negative>
-          <Message.Header>Invalid Order</Message.Header>
-          <p>{valid.message}</p>
-        </Message>
-      </Showable>
       <Form.Group>
         <Form.Field width={6}>
           <label>Action</label>
@@ -51,15 +45,21 @@ const Trade = ({ symbols, prices, trade, actions, valid }) => {
             <label>Balance After trade: ${prices.balanceAfter}</label>
           </Form.Field>
         </Grid.Column>
-        <Grid.Column width={6}>
+        <Grid.Column width={4}>
           <Form.Field>
             <label>Price: ${prices.price}</label>
             <label>Total: ${prices.total}</label>
           </Form.Field>
         </Grid.Column>
-        <Grid.Column width={4}>
-          <Showable condition={valid.condition}>
-            <Form.Button color="violet">Place Order</Form.Button>
+        <Grid.Column width={6} textAlign="right">
+          <Showable condition={valid.length}>
+            <Message negative>
+              <Message.Header>Invalid Order</Message.Header>
+              <p>{valid}</p>
+            </Message>
+          </Showable>
+          <Showable condition={!valid.length}>
+            <Form.Button color="violet">{trade.action}</Form.Button>
           </Showable>
         </Grid.Column>
       </Grid>

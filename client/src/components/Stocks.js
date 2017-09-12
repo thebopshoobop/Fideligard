@@ -15,7 +15,7 @@ const Stocks = ({ stocks, date, sort, filter, onSort, onFilter, onTrade }) => {
     <Segment>
       <Grid>
         <Grid.Column width={6}>
-          <Header as="h2">Stocks</Header>
+          <Header content="Stocks" subheader="Click any stock to trade:" />
         </Grid.Column>
         <Grid.Column width={10} textAlign="right">
           <Input placeholder="Filter..." value={filter} onChange={onFilter} />

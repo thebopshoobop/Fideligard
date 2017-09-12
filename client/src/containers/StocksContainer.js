@@ -48,7 +48,6 @@ const filterStocks = (stocks, date) => {
     selection = selection.sort((a, b) => {
       [a, b] = [a[column], b[column]];
       if (!direction) [a, b] = [b, a];
-      if (!isNaN(parseFloat(a))) [a, b] = [parseFloat(a), parseFloat(b)];
 
       if (a > b) return 1;
       if (a < b) return -1;

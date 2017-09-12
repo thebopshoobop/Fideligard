@@ -33,7 +33,6 @@ const fetchTickers = async (date, days = 10) => {
   for (let i = 1; i < days + 1; i++) {
     tickers = await fetch(buildUrl([`date=${formatDate(date)}`, columns]));
     tickers = await tickers.json();
-
     if (tickers.datatable.data.length) break;
     else date = date.add(1, "days");
   }
@@ -145,7 +144,7 @@ const populate = (start, end) => (data, [company, prices]) => {
         } else {
           const prevPrice =
             data.records[data.dates[index - diff]][company].Price;
-          prices[name] = (prevPrice - mostRecentPrice).toFixed(2);
+          prices[name] = +(prevPrice - mostRecentPrice).toFixed(2);
         }
         return prices;
       },
