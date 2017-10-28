@@ -1,7 +1,7 @@
 # Fideligard
 Buy low, sell high.
 
-![Fideligard!](https://i.imgur.com/JXieeNx.png)
+![Fideligard!](https://i.imgur.com/CrYjxSb.png)
 
 ## Overview
 * View historical end-of-day stock price data from the phenomenal Quandl (WIKI Prices)[https://www.quandl.com/data/WIKI-Wiki-EOD-Stock-Prices] dataset.
