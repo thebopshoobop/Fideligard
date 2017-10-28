@@ -4,7 +4,7 @@ Buy low, sell high.
 ![Fideligard!](https://i.imgur.com/CrYjxSb.png)
 
 ## Overview
-* View historical end-of-day stock price data from the phenomenal Quandl (WIKI Prices)[https://www.quandl.com/data/WIKI-Wiki-EOD-Stock-Prices] dataset.
+* View historical end-of-day stock price data from the phenomenal Quandl [WIKI Prices](https://www.quandl.com/data/WIKI-Wiki-EOD-Stock-Prices) dataset.
 * Fetch data for a given number of stocks within a specified date range.
 * Buy and sell those stocks while traveling through time
 * Take over the world!
