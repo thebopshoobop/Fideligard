@@ -28,5 +28,5 @@ For development you will need Node.js and NPM installed.
 
 * Clone it
 * `npm install` in the root, client, and server directories
-* `npm run dev` in the root directory
+* `npm start` in the root directory
 * Hit up http://localhost:300
